@@ -97,7 +97,7 @@ describe RubyHash do
     end
   end
 
-  describe "#key?" do
+  describe "#key? / #has_key? / #include?" do
     it "returns TRUE when key exists" do
       h = RubyHash.new
       h[ri(1)] = ri(10)
@@ -107,9 +107,23 @@ describe RubyHash do
     it "returns FALSE when key is absent" do
       RubyHash.new.key?(ri(1)).should eq RubyBool::FALSE
     end
+
+    it "has_key? is an alias for key?" do
+      h = RubyHash.new
+      h[ri(1)] = ri(10)
+      h.has_key?(ri(1)).should eq RubyBool::TRUE
+      h.has_key?(ri(99)).should eq RubyBool::FALSE
+    end
+
+    it "include? is an alias for key?" do
+      h = RubyHash.new
+      h[ri(1)] = ri(10)
+      h.include?(ri(1)).should eq RubyBool::TRUE
+      h.include?(ri(99)).should eq RubyBool::FALSE
+    end
   end
 
-  describe "#value?" do
+  describe "#value? / #has_value?" do
     it "returns TRUE when value exists" do
       h = RubyHash.new
       h[ri(1)] = ri(42)
@@ -118,6 +132,31 @@ describe RubyHash do
 
     it "returns FALSE when value is absent" do
       RubyHash.new.value?(ri(99)).should eq RubyBool::FALSE
+    end
+
+    it "has_value? is an alias for value?" do
+      h = RubyHash.new
+      h[ri(1)] = ri(42)
+      h.has_value?(ri(42)).should eq RubyBool::TRUE
+      h.has_value?(ri(99)).should eq RubyBool::FALSE
+    end
+  end
+
+  describe "#fetch" do
+    it "returns the value when key exists" do
+      h = RubyHash.new
+      h[ri(1)] = ri(10)
+      h.fetch(ri(1)).should eq ri(10)
+    end
+
+    it "returns nil (Crystal nil) when key is absent" do
+      h = RubyHash.new
+      h.fetch(ri(99)).should be_nil
+    end
+
+    it "returns default_val when key is absent (2-arg form)" do
+      h = RubyHash.new
+      h.fetch(ri(99), ri(0)).should eq ri(0)
     end
   end
 
@@ -205,14 +244,65 @@ describe RubyHash do
     end
   end
 
-  describe "#each" do
-    it "iterates key-value pairs" do
+  describe "#each / #each_pair / #each_key / #each_value" do
+    it "each iterates key-value pairs" do
       h = RubyHash.new
       h[ri(1)] = ri(10)
       h[ri(2)] = ri(20)
       count = 0
       h.each { |_, _| count += 1 }
       count.should eq 2
+    end
+
+    it "each_pair iterates key-value pairs" do
+      h = RubyHash.new
+      h[ri(1)] = ri(10)
+      keys = [] of RubyObject
+      h.each_pair { |k, _| keys << k }
+      keys.size.should eq 1
+      keys[0].should eq ri(1)
+    end
+
+    it "each_key iterates keys only" do
+      h = RubyHash.new
+      h[ri(1)] = ri(10)
+      h[ri(2)] = ri(20)
+      keys = [] of RubyObject
+      h.each_key { |k| keys << k }
+      keys.size.should eq 2
+    end
+
+    it "each_value iterates values only" do
+      h = RubyHash.new
+      h[ri(1)] = ri(10)
+      h[ri(2)] = ri(20)
+      vals = [] of RubyObject
+      h.each_value { |v| vals << v }
+      vals.size.should eq 2
+    end
+  end
+
+  describe "#select_keys / #reject_keys" do
+    it "select_keys keeps matching pairs" do
+      h = RubyHash.new
+      h[ri(1)] = ri(10)
+      h[ri(2)] = ri(20)
+      h[ri(3)] = ri(30)
+      h2 = h.select_keys { |k, _| k.as(RubyInteger).to_i64 > 1 }
+      h2.size.should eq ri(2)
+      h2.include?(ri(1)).should eq RubyBool::FALSE
+      h2.include?(ri(2)).should eq RubyBool::TRUE
+    end
+
+    it "reject_keys removes matching pairs" do
+      h = RubyHash.new
+      h[ri(1)] = ri(10)
+      h[ri(2)] = ri(20)
+      h[ri(3)] = ri(30)
+      h2 = h.reject_keys { |k, _| k.as(RubyInteger).to_i64 > 1 }
+      h2.size.should eq ri(1)
+      h2.include?(ri(1)).should eq RubyBool::TRUE
+      h2.include?(ri(2)).should eq RubyBool::FALSE
     end
   end
 

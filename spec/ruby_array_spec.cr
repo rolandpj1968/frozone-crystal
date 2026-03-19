@@ -210,6 +210,104 @@ describe RubyArray do
     end
   end
 
+  describe "#each" do
+    it "iterates over each element" do
+      a = arr(ri(1), ri(2), ri(3))
+      collected = [] of RubyObject
+      a.each { |el| collected << el }
+      collected.size.should eq 3
+      collected[0].should eq ri(1)
+      collected[2].should eq ri(3)
+    end
+
+    it "does nothing for an empty array" do
+      count = 0
+      RubyArray.new.each { |_| count += 1 }
+      count.should eq 0
+    end
+  end
+
+  describe "#map" do
+    it "transforms elements into a new array" do
+      a = arr(ri(1), ri(2), ri(3))
+      b = a.map { |el| ri(el.as(RubyInteger).to_i64 * 2) }
+      b.length.should eq ri(3)
+      b[0_i64].should eq ri(2)
+      b[1_i64].should eq ri(4)
+      b[2_i64].should eq ri(6)
+    end
+
+    it "does not mutate the original" do
+      a = arr(ri(1), ri(2))
+      a.map { |el| ri(99_i64) }
+      a[0_i64].should eq ri(1)
+    end
+  end
+
+  describe "#select" do
+    it "keeps elements matching the predicate" do
+      a = arr(ri(1), ri(2), ri(3), ri(4))
+      b = a.select { |el| el.as(RubyInteger).to_i64.even? }
+      b.length.should eq ri(2)
+      b[0_i64].should eq ri(2)
+      b[1_i64].should eq ri(4)
+    end
+  end
+
+  describe "#reject" do
+    it "keeps elements not matching the predicate" do
+      a = arr(ri(1), ri(2), ri(3), ri(4))
+      b = a.reject { |el| el.as(RubyInteger).to_i64.even? }
+      b.length.should eq ri(2)
+      b[0_i64].should eq ri(1)
+      b[1_i64].should eq ri(3)
+    end
+  end
+
+  describe "#compact" do
+    it "removes nil elements" do
+      a = RubyArray.new
+      a.push(ri(1))
+      a.push(RubyNil::INSTANCE)
+      a.push(ri(2))
+      a.push(RubyNil::INSTANCE)
+      b = a.compact
+      b.length.should eq ri(2)
+      b[0_i64].should eq ri(1)
+      b[1_i64].should eq ri(2)
+    end
+
+    it "returns same-length array when no nils present" do
+      a = arr(ri(1), ri(2), ri(3))
+      a.compact.length.should eq ri(3)
+    end
+  end
+
+  describe "#zip" do
+    it "pairs elements from two arrays" do
+      a = arr(ri(1), ri(2), ri(3))
+      b = arr(ri(10), ri(20), ri(30))
+      z = a.zip(b)
+      z.length.should eq ri(3)
+      pair0 = z[0_i64].as(RubyArray)
+      pair0[0_i64].should eq ri(1)
+      pair0[1_i64].should eq ri(10)
+      pair2 = z[2_i64].as(RubyArray)
+      pair2[0_i64].should eq ri(3)
+      pair2[1_i64].should eq ri(30)
+    end
+
+    it "pads missing other elements with nil" do
+      a = arr(ri(1), ri(2))
+      b = arr(ri(10))
+      z = a.zip(b)
+      z.length.should eq ri(2)
+      pair1 = z[1_i64].as(RubyArray)
+      pair1[0_i64].should eq ri(2)
+      pair1[1_i64].should eq RubyNil::INSTANCE
+    end
+  end
+
   describe "#uniq" do
     it "removes duplicates" do
       a = arr(ri(1), ri(2), ri(1), ri(3), ri(2))
