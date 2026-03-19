@@ -1,0 +1,8 @@
+.shards/
+lib/
+bin/
+*.dwarf
+# compiled test/example binaries (no extension, at root)
+/ruby_string
+/ruby_symbol
+/ruby_integer
