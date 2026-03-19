@@ -19,6 +19,7 @@
 # Bytes are ALWAYS raw byte storage. Crystal's String cannot be used here
 # because it enforces valid UTF-8. We carry raw Bytes + a RubyEncoding tag.
 
+require "../ruby_object"
 require "../encoding/single_byte_transcoder"
 
 # ---------------------------------------------------------------------------
@@ -35,7 +36,7 @@ end
 # RubyString
 # ---------------------------------------------------------------------------
 
-class RubyString
+class RubyString < RubyObject
   include Comparable(RubyString)
 
   # ------------------------------------------------------------------
@@ -368,6 +369,10 @@ class RubyString
     @encoding == other.@encoding && @bytes == other.@bytes
   end
 
+  def ==(other : RubyObject) : Bool
+    false
+  end
+
   # Ruby == semantics: ASCII-only strings compare equal regardless of encoding.
   # Two strings are equal if:
   #   - Their bytes are identical AND their encodings are the same, OR
@@ -656,5 +661,13 @@ class RubyString
     else
       false
     end
+  end
+
+  # -------------------------------------------------------------------------
+  # RubyObject override
+  # -------------------------------------------------------------------------
+
+  def hash : UInt64
+    @bytes.hash
   end
 end

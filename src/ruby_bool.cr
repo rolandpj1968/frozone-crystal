@@ -3,7 +3,9 @@
 # Ruby's true and false are singleton objects. This class enforces that
 # by making the constructor private and providing two constants.
 
-class RubyBool
+require "./ruby_object"
+
+class RubyBool < RubyObject
   # The two singleton instances.
   TRUE  = new(true)
   FALSE = new(false)
@@ -33,8 +35,24 @@ class RubyBool
     @value == other.value
   end
 
+  def ==(other : RubyObject) : Bool
+    false
+  end
+
   def ==(other) : Bool
     false
+  end
+
+  # -------------------------------------------------------------------------
+  # RubyObject overrides
+  # -------------------------------------------------------------------------
+
+  def truthy? : Bool
+    @value
+  end
+
+  def ruby_bool? : Bool
+    true
   end
 
   # Logical AND — both must be true.

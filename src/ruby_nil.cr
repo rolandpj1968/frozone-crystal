@@ -4,10 +4,11 @@
 # pattern: INSTANCE is the sole RubyNil object. The constructor is private
 # to enforce this invariant.
 
+require "./ruby_bool"
 require "./ruby_integer"
 require "./ruby_float"
 
-class RubyNil
+class RubyNil < RubyObject
   # The one and only nil value.
   INSTANCE = new
 
@@ -36,8 +37,28 @@ class RubyNil
     true
   end
 
+  def ==(other : RubyObject) : Bool
+    false
+  end
+
   def ==(other) : Bool
     false
+  end
+
+  # -------------------------------------------------------------------------
+  # RubyObject overrides
+  # -------------------------------------------------------------------------
+
+  def truthy? : Bool
+    false
+  end
+
+  def ruby_nil? : Bool
+    true
+  end
+
+  def not : RubyBool
+    RubyBool::TRUE
   end
 
   # nil.to_i => 0

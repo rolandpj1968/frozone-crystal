@@ -13,7 +13,7 @@ require "./ruby_string"  # pulls in RubyEncoding
 # RubySymbol
 # ---------------------------------------------------------------------------
 
-class RubySymbol
+class RubySymbol < RubyObject
   include Comparable(RubySymbol)
 
   getter name     : String
@@ -106,6 +106,10 @@ class RubySymbol
   # Identity equality — same interned object means same object_id.
   def ==(other : RubySymbol) : Bool
     @object_id == other.object_id
+  end
+
+  def ==(other : RubyObject) : Bool
+    false
   end
 
   # Lexicographic ordering by name.

@@ -12,8 +12,9 @@
 #   Crystal: -7 % 3  =>  -1   (sign of dividend)
 
 require "big"
+require "./ruby_object"
 
-class RubyInteger
+class RubyInteger < RubyObject
   include Comparable(RubyInteger)
 
   # -------------------------------------------------------------------------
@@ -114,6 +115,10 @@ class RubyInteger
     when BigInt then v.to_s(base)
     else             raise "unreachable"
     end
+  end
+
+  def inspect : String
+    to_s
   end
 
   # -------------------------------------------------------------------------
@@ -313,6 +318,10 @@ class RubyInteger
     to_big == other.to_big
   end
 
+  def ==(other : RubyObject) : Bool
+    false
+  end
+
   def <(other : RubyInteger) : Bool
     to_big < other.to_big
   end
@@ -462,5 +471,17 @@ class RubyInteger
       tmp = tmp >> 1
     end
     count
+  end
+
+  # -------------------------------------------------------------------------
+  # RubyObject overrides
+  # -------------------------------------------------------------------------
+
+  def hash : UInt64
+    case v = @value
+    when Int64  then v.hash
+    when BigInt then v.hash
+    else             raise "unreachable"
+    end
   end
 end

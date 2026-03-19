@@ -15,7 +15,7 @@
 
 require "./ruby_integer"
 
-class RubyFloat
+class RubyFloat < RubyObject
   # -------------------------------------------------------------------------
   # Constants
   # -------------------------------------------------------------------------
@@ -177,6 +177,10 @@ class RubyFloat
   def ==(other : RubyInteger) : Bool
     return false if @value.nan?
     @value == other.to_f64
+  end
+
+  def ==(other : RubyObject) : Bool
+    false
   end
 
   def <(other : RubyFloat) : Bool
