@@ -1,3 +1,5 @@
 require "./ruby_string"
 require "./ruby_symbol"
 require "./ruby_integer"
+require "./encoding/single_byte_tables"
+require "./encoding/single_byte_transcoder"
