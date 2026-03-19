@@ -1,5 +1,5 @@
 require "spec"
-require "../src/ruby_integer"
+require "../src/ruby_float"  # pulls in ruby_integer; needed for RubyInteger#to_f
 
 # Convenience helpers
 private def ri(v : Int64) : RubyInteger
@@ -91,9 +91,31 @@ describe RubyInteger do
     end
   end
 
+  describe "#to_f64" do
+    it "converts small integers to Float64" do
+      ri(3_i64).to_f64.should eq 3.0_f64
+    end
+
+    it "converts negative integers to Float64" do
+      ri(-7_i64).to_f64.should eq -7.0_f64
+    end
+  end
+
   describe "#to_f" do
-    it "converts small integers" do
-      ri(3_i64).to_f.should eq 3.0
+    it "returns a RubyFloat wrapping the value" do
+      f = ri(3_i64).to_f
+      f.should be_a(RubyFloat)
+      f.raw.should eq 3.0_f64
+    end
+
+    it "converts negative integers correctly" do
+      f = ri(-5_i64).to_f
+      f.should be_a(RubyFloat)
+      f.raw.should eq -5.0_f64
+    end
+
+    it "round-trips via to_i" do
+      ri(42_i64).to_f.to_i.to_i64.should eq 42_i64
     end
   end
 

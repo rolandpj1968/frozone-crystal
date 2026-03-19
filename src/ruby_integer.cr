@@ -96,12 +96,16 @@ class RubyInteger
     end
   end
 
-  def to_f : Float64
+  def to_f64 : Float64
     case v = @value
     when Int64  then v.to_f64
     when BigInt then v.to_f64
     else             raise "unreachable"
     end
+  end
+
+  def to_f : RubyFloat
+    RubyFloat.new(to_f64)
   end
 
   def to_s(base : Int32 = 10) : String
